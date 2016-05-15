@@ -1,80 +1,83 @@
-var isNumberRES =	'(?:'+
-		'(?:\\d+|\\d*\\.\\d+)'+
-		'(?:[E|e][+|-]?\\d+)?'+
-	')|NaN|Infinity'
-var isVariableRES = '[_\$A-Za-z][_\$A-Za-z0-9]*'
+var nbRE =	/(?:(?:\d*\.\d+|\d+)(?:[E|e][+|-]?\d+)?)|NaN|Infinity/,
+		liRE = /(?:true|false|null)(?![_\$A-Za-z0-9])/,
+		MaRE = RegExp('(?:' + Object.getOwnPropertyNames(Math).map(parseKey, Math).join('|') + ')'),
+		opRE = listToRE('( ) [ ] ** * / % + - ,'),
+		bwRE = listToRE('>>> << >> ~ & ^ |'),
+		loRE = listToRE('=== !== == != <= >= && || ! < > ? :'),
+		idRE = /[_\$A-Za-z][_\$A-Za-z0-9]*/,
+		exclude = /\.prototype(?:\.|$)|\.window(?:\.|$)|\.self(?:\.|$)|\.process(?:\.|$)/
 
-function strTest(tokStr) {
-	return function(source) {
-		for (var i=0; i<str.length; i++) if (str[i] !== source[i]) return
-		return tokStr
-	}
+// combined assignments are not supported: >>>= <<= >>= **= += -= *= /= %= &= ^= |=
+// TODO add Number.Epsilon, .MAX_SAFE_INTEGER .MAX_VALUE .MIN_SAFE_INTEGER .MIN_VALUE...
+
+function parseKey(key) {
+	return escapeRegExp(typeof this[key] === 'function' ? key+'(' : key)
 }
 
-function regTest(regStr) {
-	var reg = RegExp('^\s*'+regStr)
-	return function(source) {
-		var res = reg.exec(source)
-		return res ? res[0] : ''
-	}
+function listToRE(str) {
+	return RegExp('(?:' + str.split(' ').map(escapeRegExp).join('|') + ')')
 }
 
-
-var tokTests = [
-	regTest(isNumberRES),
-]
-
-
-
-
-/*eslint no-console:0*/
 function escapeRegExp(stringRegex) {
-	return stringRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	return stringRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
-// A. void if has a method or method-like
-var hasMethodRES = '\\.[^0-9]' //TODO
-var hasMethodRE = new RegExp( hasMethodRES, 'g' ) //TODO
-// B. split in number, variables and arguments
+module.exports = function(stringExpression, argumentsName) {
+	var source = stringExpression,
+			target = [],
+			token = '',
+			prefix = argumentsName || '$argument',
+			name = ''
 
-//	(?:)	Matches x but does not remember the match.
-//var isOperator1RES =	['\\(', '\\)', '\\!', '\\~'].join('|')
-var isOperatorRES =	'( ) ** * / % + - ,'.split(' ').map(escapeRegExp).join('|')
-var isBitwiseRES =	'~ << >> >>> & ^ |'.split(' ').map(escapeRegExp).join('|')
-var isLogicalRES =	'! > >= < <= == != === !== && || ? :'.split(' ').map(escapeRegExp).join('|')
-var isValueRES = 'true|false'
-var isFunctionRES = Object.getOwnPropertyNames(Math).join('|')
+	var tests = [
+		extract(nbRE),
+		extract(liRE), // must be before functions and identifiers
 
-
-var fullRES = [isNumberRES, isOperatorRES, isBitwiseRES, isLogicalRES, isValueRES, isFunctionRES, isVariableRES].join('|')
-var fullRE = new RegExp( fullRES, 'g' )
-
-var functions = {}
-var constants = {}
-Object.getOwnPropertyNames(Math).forEach(function(key) {
-	if (typeof Math[key] === 'function') functions[key] = Math[key]
-	else constants[key] = Math[key]
-})
-
-var finders = [
-	function fcn(str) {
-		var ids = fcn
-	}
-	function(str) { return [tid, arg] } //eg ['+', [-1, +1]] vs ['name', []] vs ['!', [1]]
-]
-
-module.exports = function tokenize(stringExpression) {
-	var str = stringExpression //the remaining string
-
-	return function next() {
-		if (!str.length) return {done: true}
-		for (var i=0; i < finders.length; ++i) {
-			var tkn = finders[i](str)
-			if (tkn) {
-				str = str.slice(tkn.length)
-				return {value: tkn}
+		extract(bwRE), // must be before logical
+		extract(loRE), // must be after bitwise
+		extract(opRE), // must be after functions
+		extract(MaRE, function(t) { return 'Math.' + t }),
+		extract(idRE, function(t) { return prefix + '.' + t }), //must be after functions and constants,
+		function assignmentTest(src) {
+			// only a single assignment is allowed in second place. Will be checked on exit
+			if (target.length === 1 && src[0] === '=') {
+				source = source.slice(1)
+				return '='
 			}
 		}
-		return {done: true, value: Error('can\'t parse '+str)}
+	]
+
+	function extract(regexp, xfo) {
+		var reg = RegExp('^' + regexp.source)
+		return function() {
+			var res = reg.exec(source)
+			if (!res) return ''
+			source = source.slice(res[0].length)
+			return xfo ? xfo(res[0]) : res[0]
+		}
 	}
+
+	function next() {
+		for (var i=0; i<tests.length; ++i) {
+			token = tests[i](source)
+			if (token) return token
+		}
+	}
+
+	while (source.length) {
+		source = source.trim()
+		next()
+		if (!token) return Error('unknown token at ' + (stringExpression.length - source.length))
+		if (exclude.test(token)) return Error('forbiden "'+exclude.exec(token)[0]+'" token at ' + (stringExpression.length - source.length))
+		target.push(token)
+	}
+	// remove assignment if any and set name
+	if (target[1] === '=') {
+		for (var i=0; i<prefix.length; ++i) {
+			if (target[0][i] !== prefix[i]) return Error('illegal assignment at ' + (target[0].length+1))
+		}
+		name = target.shift().slice(prefix.length+1)
+		target.shift() //remove the remaining assignment
+	}
+	return {name: name, tokens: target}
 }
