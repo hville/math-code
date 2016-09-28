@@ -1,28 +1,8 @@
-var nbRE =	/(?:(?:\d*\.\d+|\d+)(?:[E|e][+|-]?\d+)?)|NaN|Infinity/,
-		liRE = /(?:true|false|null)(?![_\$A-Za-z0-9])/,
-		MaRE = RegExp('(?:' + Object.getOwnPropertyNames(Math).map(parseKey, Math).join('|') + ')'),
-		opRE = listToRE('( ) [ ] ** * / % + - ,'),
-		bwRE = listToRE('>>> << >> ~ & ^ |'),
-		loRE = listToRE('=== !== == != <= >= && || ! < > ? :'),
-		idRE = /[_\$A-Za-z][_\$A-Za-z0-9]*/,
-		exclude = /\.prototype(?:\.|$)|\.window(?:\.|$)|\.self(?:\.|$)|\.process(?:\.|$)/
+var re = require('./reg-exp')
 
-// combined assignments are not supported: >>>= <<= >>= **= += -= *= /= %= &= ^= |=
-// TODO add Number.Epsilon, .MAX_SAFE_INTEGER .MAX_VALUE .MIN_SAFE_INTEGER .MIN_VALUE...
+module.exports = tokenize
 
-function parseKey(key) {
-	return escapeRegExp(typeof this[key] === 'function' ? key+'(' : key)
-}
-
-function listToRE(str) {
-	return RegExp('(?:' + str.split(' ').map(escapeRegExp).join('|') + ')')
-}
-
-function escapeRegExp(stringRegex) {
-	return stringRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-}
-
-module.exports = function(stringExpression, argumentsName) {
+function tokenize(stringExpression, argumentsName) {
 	var source = stringExpression,
 			target = [],
 			token = '',
@@ -30,14 +10,13 @@ module.exports = function(stringExpression, argumentsName) {
 			name = ''
 
 	var tests = [
-		extract(nbRE),
-		extract(liRE), // must be before functions and identifiers
-
-		extract(bwRE), // must be before logical
-		extract(loRE), // must be after bitwise
-		extract(opRE), // must be after functions
-		extract(MaRE, function(t) { return 'Math.' + t }),
-		extract(idRE, function(t) { return prefix + '.' + t }), //must be after functions and constants,
+		extract(re.isNumeric),
+		extract(re.isLiteral), // must be before functions and identifiers
+		extract(re.isBitwise), // must be before logical
+		extract(re.isLogical), // must be after bitwise
+		extract(re.isOperatr), // must be after functions
+		extract(re.isMathFcn, function(t) { return 'Math.' + t }),
+		extract(re.isVarName, function(t) { return prefix + '.' + t }), //must be after functions and constants,
 		function assignmentTest(src) {
 			// only a single assignment is allowed in second place. Will be checked on exit
 			if (target.length === 1 && src[0] === '=') {
@@ -57,18 +36,13 @@ module.exports = function(stringExpression, argumentsName) {
 		}
 	}
 
-	function next() {
-		for (var i=0; i<tests.length; ++i) {
-			token = tests[i](source)
-			if (token) return token
-		}
-	}
+
 
 	while (source.length) {
 		source = source.trim()
-		next()
+		token = getNextToken(source, tests)
 		if (!token) return Error('unknown token at ' + (stringExpression.length - source.length))
-		if (exclude.test(token)) return Error('forbiden "'+exclude.exec(token)[0]+'" token at ' + (stringExpression.length - source.length))
+		if (re.isRemoved.test(token)) return Error('forbiden "'+re.isRemoved.exec(token)[0]+'" token at ' + (stringExpression.length - source.length))
 		target.push(token)
 	}
 	// remove assignment if any and set name
@@ -80,4 +54,11 @@ module.exports = function(stringExpression, argumentsName) {
 		target.shift() //remove the remaining assignment
 	}
 	return {name: name, tokens: target}
+}
+//find the next token in the source
+function getNextToken(source, tests) {
+	for (var i=0; i<tests.length; ++i) {
+		var token = tests[i](source)
+		if (token) return token
+	}
 }

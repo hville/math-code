@@ -1,6 +1,8 @@
 var	tkn = require('../src/tokenize')
 
-module.exports = function parse(stringExpression, argumentsName) {
+module.exports = parse
+
+function parse(stringExpression, argumentsName) {
 	var prefix = argumentsName || '$argument',
 			parts = tkn(stringExpression, prefix),
 			name = parts.name,
