@@ -1,64 +1,42 @@
-var re = require('./reg-exp')
+var getNextToken = require('./get-token')
+
+var forbidenRE = /\.prototype(?:\.|$)|\.window(?:\.|$)|\.self(?:\.|$)|\.process(?:\.|$)|\.constructor(?:\.|$)/
+
 
 module.exports = tokenize
-
+/**
+ * Takes an expression (2+3) or assignment (y=m*x) string and returns and array of string tokens
+ * Math methods are prepended with Math (eg. 'pow()'' => 'Math.pow()'')
+ * Unknown variables are grouped into a named set (eg. 'y' => '$vars.y')
+ *
+ * @param {string} stringExpression - the equation to parse
+ * @param {string} [argumentsName] - the name of the variable object
+ * @return {Array<string>} - Array of tokens
+ */
 function tokenize(stringExpression, argumentsName) {
-	var source = stringExpression,
-			target = [],
-			token = '',
-			prefix = argumentsName || '$argument',
-			name = ''
-
-	var tests = [
-		extract(re.isNumeric),
-		extract(re.isLiteral), // must be before functions and identifiers
-		extract(re.isBitwise), // must be before logical
-		extract(re.isLogical), // must be after bitwise
-		extract(re.isOperatr), // must be after functions
-		extract(re.isMathFcn, function(t) { return 'Math.' + t }),
-		extract(re.isVarName, function(t) { return prefix + '.' + t }), //must be after functions and constants,
-		function assignmentTest(src) {
-			// only a single assignment is allowed in second place. Will be checked on exit
-			if (target.length === 1 && src[0] === '=') {
-				source = source.slice(1)
-				return '='
-			}
-		}
-	]
-
-	function extract(regexp, xfo) {
-		var reg = RegExp('^' + regexp.source)
-		return function() {
-			var res = reg.exec(source)
-			if (!res) return ''
-			source = source.slice(res[0].length)
-			return xfo ? xfo(res[0]) : res[0]
-		}
+	var ctx = {
+		functionName: '',
+		source: stringExpression,
+		tokens: [],
+		argumentsName: argumentsName || '$argument'
 	}
 
-
-
-	while (source.length) {
-		source = source.trim()
-		token = getNextToken(source, tests)
-		if (!token) return Error('unknown token at ' + (stringExpression.length - source.length))
-		if (re.isRemoved.test(token)) return Error('forbiden "'+re.isRemoved.exec(token)[0]+'" token at ' + (stringExpression.length - source.length))
-		target.push(token)
+	while (ctx.source.length) {
+		ctx.source = ctx.source.trim()
+		var token = getNextToken(ctx)
+		//if (token) source = source.slice(token.length)
+		if (!token) return Error('unknown token at ' + (stringExpression.length - ctx.source.length))
+		if (forbidenRE.test(token)) return Error('forbiden "'+forbidenRE.exec(token)[0]+'" token at ' + (stringExpression.length - ctx.source.length))
+		ctx.tokens.push(token)
 	}
 	// remove assignment if any and set name
-	if (target[1] === '=') {
-		for (var i=0; i<prefix.length; ++i) {
-			if (target[0][i] !== prefix[i]) return Error('illegal assignment at ' + (target[0].length+1))
+	if (ctx.tokens[1] === '=') {
+		for (var i=0; i<ctx.argumentsName.length; ++i) {
+			if (ctx.tokens[0][i] !== ctx.argumentsName[i]) return Error('illegal assignment at ' + (ctx.tokens[0].length+1))
 		}
-		name = target.shift().slice(prefix.length+1)
-		target.shift() //remove the remaining assignment
+		ctx.functionName = ctx.tokens.shift().slice(ctx.argumentsName.length+1)
+		ctx.tokens.shift() //remove the remaining assignment
 	}
-	return {name: name, tokens: target}
-}
-//find the next token in the source
-function getNextToken(source, tests) {
-	for (var i=0; i<tests.length; ++i) {
-		var token = tests[i](source)
-		if (token) return token
-	}
+	ctx.source = stringExpression
+	return ctx
 }

@@ -5,10 +5,10 @@ module.exports = parse
 function parse(stringExpression, argumentsName) {
 	var prefix = argumentsName || '$argument',
 			parts = tkn(stringExpression, prefix),
-			name = parts.name,
 			tokens = parts.tokens,
 			args = []
 
+	//extract all the variable names from the tokens
 	tokens.reduce(function(res, tok) {
 		for (var i=0; i<prefix.length; ++i) if (tok[i] !== prefix[i]) return res
 		var arg = tok.slice(prefix.length+1)
@@ -17,7 +17,7 @@ function parse(stringExpression, argumentsName) {
 	}, args)
 
 	return {
-		name: name,
+		name: parts.functionName,
 		args: args,
 		expr: Function(prefix, 'return ' + tokens.join(' '))
 	}

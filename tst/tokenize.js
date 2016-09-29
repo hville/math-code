@@ -16,7 +16,7 @@ t.equal(tkn(' .1e-23a').tokens[0], '.1e-23')
 t.equal(tkn('	.1e-23a').tokens[0], '.1e-23')
 
 console.log('Math...')
-t.equal(tkn('sin(0').tokens[0], 'Math.sin(')
+t.equal(tkn('sin(0').tokens[0], 'Math.sin')
 t.equal(tkn('PI0').tokens[0], 'Math.PI')
 
 console.log('identifiers...')
@@ -45,13 +45,13 @@ t.equal(tkn('false>=_$Ab0.3', 'user').tokens[0], 'false')
 t.equal(tkn('nully===$0.3', '$vars').tokens[0], '$vars.nully')
 
 console.log('assignment...')
-t.equal(tkn('myFunc=4').name, 'myFunc')
+t.equal(tkn('myFunc=4').functionName, 'myFunc')
 t.equal(tkn('myFunc=4').tokens[0], 4)
 
 console.log('all together...')
 t.deepEqual(tkn(
 	'test=-sin(2+3x)*(2-patate[0]) ?PI : null ', '$vars').tokens,
-	'- Math.sin( 2 + 3 $vars.x ) * ( 2 - $vars.patate [ 0 ] ) ? Math.PI : null'.split(' ')
+	'- Math.sin ( 2 + 3 $vars.x ) * ( 2 - $vars.patate [ 0 ] ) ? Math.PI : null'.split(' ')
 )
 
 function chkErr(str) {
@@ -67,6 +67,10 @@ chkErr('a+b=c')
 chkErr('Object.keys(a)')
 chkErr('[].concat()')
 chkErr('3,prototype')
+chkErr('[].prototype')
+chkErr('[].constructor')
+chkErr('window["something"]')
+chkErr('(3).constructor')
 chkErr('process.hrtime')
 
 console.log('=== END ===')

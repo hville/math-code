@@ -15,6 +15,12 @@ console.log('No Args...')
 t.equal(parse('1+1').expr(), 2)
 t.equal(parse('').expr(), undefined)
 
+console.log('Math...')
+t.equal(parse('PI').expr(), Math.PI)
+
+console.log('Number...')
+t.equal(parse('EPSILON').expr(), Number.EPSILON)
+
 console.log('Identity...')
 t.equal(parse('a').expr({a:1}), 1)
 t.equal(parse('a').expr({a:'1'}), '1')
@@ -49,8 +55,8 @@ t.equal(parse('a').expr({a:'\"var'}), '"var')
 t.equal(parse('a').expr({a:'\uD800'}), '\uD800')
 t.equal(parse('a').expr({a:'\uDC00'}), '\uDC00')
 t.equal(parse('a').expr({a:'\x66'}), 'f')
-// \uXXXX	unicode codepoint
-// \xXX	the Latin-1 character
+// \uXXXX unicode codepoint
+// \xXX the Latin-1 character
 // \u{X} ... \u{XXXXXX}	unicode codepoint
 
 console.log('Chained Named Function...')
