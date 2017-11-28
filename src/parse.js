@@ -1,75 +1,48 @@
 var	tkn = require('../src/tokenize')
 
-module.exports = parse
+// color format
+var NORM = '\u001b[0m',
+		RED = '\u001b[31m'
 
-function parse(stringExpression, argumentsName) {
-	var prefix = argumentsName || '$argument',
-			parts = tkn(stringExpression, prefix),
-			tokens = parts.tokens,
-			args = []
-
-	//extract all the variable names from the tokens
-	tokens.reduce(function(res, tok) {
-		for (var i=0; i<prefix.length; ++i) if (tok[i] !== prefix[i]) return res
-		var arg = tok.slice(prefix.length+1)
-		if (args.indexOf(arg) === -1) res.push(arg)
-		return res
-	}, args)
-
-	return {
-		name: parts.functionName,
-		args: args,
-		expr: Function(prefix, 'return ' + tokens.join(' '))
-	}
-}
-/*
-function splitTree(tokens, fcn) { //destroys the source array
-	var	tgt = [fcn || '(', []]
-	while(tokens.length) {
-		var tok = tokens.shift()
-		if (tok === ')') return tgt
-		if (tok === '(') tgt[1].push(splitTree(tokens)) // group start
-		else if (tok[tok.length-1] === '(') { //function argument start
-			tgt[1].push(splitTree(tokens, tok))
-		}
-		else tgt[1].push(tok)
-	}
-	return tgt
+module.exports = function(str) {
+	return new Parser(str)
 }
 
-function joinTree(tree) {
-	var str = tree[0]
-	while(tree[1].length) {
-		var itm = tree[1].shift()
-		if (typeof itm === 'string') str += itm
-		else if (Array.isArray(itm)) str += joinTree(itm)
+function Parser(str) {
+	var tokens = tkn(str),
+			nameIdx = tokens.$name[0]
+	this.tokens = tokens
+	this.name = nameIdx === undefined ? '' : tokens[nameIdx][0]
+	this.errors = tokens.$error.length
+}
+Parser.prototype = {
+	constructor: Parser,
+	print: print,
+	get exec() { return compile(this.tokens) },
+	get args() { return param(this.tokens) }
+}
+function print() {
+	var tokens = this.tokens
+	for (var i=0, str=''; i<tokens.length; ++i) {
+		if (tokens[i].type === '$error') str += RED + tokens[i] + NORM
+		else str += tokens[i]
 	}
-	str += ')'
 	return str
 }
-*/
-/*
-function replace(src, op, fcn) {
-	var tgt = []
-	var itm
-	var newItm = []
-	for (var i=0; i<src.length; ++i) {
-		itm = src[i]
-		if (Array.isArray(itm)) {
-			newItm = replace(itm,op,fcn)
-			newItm.fcn = itm.fcn
-			tgt.push(newItm)
-		}
-		else if (itm === op) {
-			var A = tgt.pop()
-			var newItm2 = [A, ',', src[++i]]
-			newItm2.fcn = fcn
-			console.log('BEFORE: ', src)
-			console.log('AFTER: ', newItm2)
-			tgt.push(newItm2)
-		}
-		else tgt.push(itm)
+function compile(tokens) {
+	var	body = 'return ',
+			first = tokens.$equal.length ? tokens.$equal[0]+1 : 0
+	if (this.errors) return null
+	for (var i=first; i<tokens.length; ++i) {
+		body += !tokens[i].type ? tokens[i]
+			: tokens[i].type === '$space' ? ' '
+			: tokens[i].type + '.' + tokens[i]
 	}
-	return tgt
+	return Function('$param', body)
 }
-*/
+function param(tokens) {
+	return tokens.$param.map(getTokenString, tokens)
+}
+function getTokenString(idx) {
+	return this[idx][0]
+}

@@ -1,24 +1,23 @@
 {
-	"version": "0.0.4",
-	"description": "random number generators for specified range and shape",
-	"main": "./index.js",
-	"dependencies": {
-	},
-	"devDependencies": {
-		"tdigest": "0.1.1"
-	},
-	"scripts": {
-		"test": "node test.js"
-	},
-	"keywords": [],
-	"author": "Hugo Villeneuve",
-	"license": "UNLICENSED",
-	"repository": {
-		"type": "git",
-		"url": "bitbucket:hville/math-parse"
-	},
-	"publishConfig": {
-		"registry": "http://localhost:4873/"
-	},
-	"name": "@private/math-parse"
+  "version": "0.0.4",
+  "description": "random number generators for specified range and shape",
+  "main": "./index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "cotest": "^3.0.0"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "Hugo Villeneuve",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "bitbucket:hville/math-parse"
+  },
+  "publishConfig": {
+    "registry": "http://localhost:4873/"
+  },
+  "name": "@private/math-parse"
 }

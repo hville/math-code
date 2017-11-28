@@ -6,7 +6,9 @@ console.log('Source:', source)
 
 var res = parse(source)
 
-console.log(
-	res.args.length ? 'unknown arguments: ' + res.args.join(', ')
-	: parse(source).expr()
-)
+//console.log('tokens: ', res.tokens)
+console.log('prefix: ', res.prefix())
+if (res.tokens.$error.length) console.log('formated: ', res.format())
+else console.log('result: ', res.compile()())
+
+

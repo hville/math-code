@@ -1,9 +1,7 @@
 .git/
-.vscode/
-coverage/
-html-report/
 node_modules/
 bld/
-_old/
+old/
 info/
+note/
 *.log

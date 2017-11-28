@@ -1,73 +1,84 @@
 /*eslint no-console:0*/
 'use strict'
-var t = require('assert'),
+var ct = require('cotest'),
 		parse = require('../src/parse')
 
-console.log('=== START ===')
+ct('=== START ===')
 
-console.log('Arguments...')
-t.equal(parse('a').args[0], 'a')
-t.equal(parse('a').expr.length, 1)
-t.deepEqual(parse('a+b').args, ['a', 'b'])
-t.equal(parse('a+b').expr.length, 1, 'The function always takes a single argument')
+ct('Arguments', function() {
+	ct('===', parse('a').tokens[0].toString(), 'a')
+	ct('===', parse('a').args.length, 1)
+	ct('{==}', parse('a+b').tokens.$param, [0, 2])
+	ct('{==}', parse('a+b').args, ['a', 'b'])
+	ct('===', parse('a+b').args.length, 2)
+})
 
-console.log('No Args...')
-t.equal(parse('1+1').expr(), 2)
-t.equal(parse('').expr(), undefined)
+ct('No Args', function() {
+	ct('===', parse('1+1').exec(), 2)
+	ct('===', parse('').exec(), undefined)
+})
 
-console.log('Math...')
-t.equal(parse('PI').expr(), Math.PI)
+ct('Math', function() {
+	ct('===', parse('PI').exec(), Math.PI)
+})
 
-console.log('Number...')
-t.equal(parse('EPSILON').expr(), Number.EPSILON)
+ct('Number', function() {
+	ct('===', parse('EPSILON').exec(), Number.EPSILON)
+})
 
-console.log('Identity...')
-t.equal(parse('a').expr({a:1}), 1)
-t.equal(parse('a').expr({a:'1'}), '1')
-t.deepEqual(parse('a').expr({a:[]}), [])
-t.deepEqual(parse('a').expr({a:{}}), {})
+ct('Identity', function() {
+	ct('===', parse('a').exec({a:1}), 1)
+	ct('===', parse('a').exec({a:'1'}), '1')
+	ct('{==}', parse('a').exec({a:[]}), [])
+	ct('{==}', parse('a').exec({a:{}}), {})
+})
 
-console.log('Algebra...')
-t.equal(parse('a*a+b*b').expr({a:1, b:2}), 5)
-t.equal(parse('3*a + 2*b').expr({a:1, b:2}), 7)
+ct('Algebra', function() {
+	ct('===', parse('a*a+b*b').exec({a:1, b:2}), 5)
+	ct('===', parse('3*a + 2*b').exec({a:1, b:2}), 7)
+})
 
-console.log('Math Constants...')
-t.equal(parse('PI').expr({a:'IGNORED'}), Math.PI)
-t.equal(parse('a*PI+b*PI').expr({a:1, b:2}), 3*Math.PI)
+ct('Math Constants', function() {
+	ct('===', parse('PI').exec({a:'IGNORED'}), Math.PI)
+	ct('===', parse('a*PI+b*PI').exec({a:1, b:2}), 3*Math.PI)
+})
 
-console.log('Math Functions...')
-t.equal(parse('max(2,qty)').expr({a:'IGNORED', qty:3}), 3)
+ct('Math Functions', function() {
+	ct('===', parse('max(2,qty)').exec({a:'IGNORED', qty:3}), 3)
+})
 
-console.log('reserved words...')
-t.equal(parse('var').expr({var:'var'}), 'var')
-t.equal(parse('get').expr({get:'get'}), 'get')
-t.equal(parse('new').expr({new:'new'}), 'new')
+ct('reserved words', function() {
+	ct('===', parse('var').exec({var:'var'}), 'var')
+	ct('===', parse('get').exec({get:'get'}), 'get')
+	ct('===', parse('new').exec({new:'new'}), 'new')
+})
 
-console.log('Named Function...')
-t.equal(parse('a=b+c').name, 'a')
-t.equal(parse('a=b+c').expr({b:10, c:20}), 30)
-t.equal(parse('new').expr({new:'new'}), 'new')
+ct('Named Function', function() {
+	ct('===', parse('a=b+c').name, 'a')
+	ct('===', parse('a=b+c').exec({b:10, c:20}), 30)
+	ct('===', parse('new').exec({new:'new'}), 'new')
+})
 
-console.log('string tricks...', '\uD800', '\uDC00', '\uD800\uDC00', '\x66')
-t.equal(parse('a').expr({a:'\'var'}), '\'var')
-t.equal(parse('a').expr({a:'\"var'}), '\"var')
-t.equal(parse('a').expr({a:'\"var'}), '"var')
-t.equal(parse('a').expr({a:'\uD800'}), '\uD800')
-t.equal(parse('a').expr({a:'\uDC00'}), '\uDC00')
-t.equal(parse('a').expr({a:'\x66'}), 'f')
-// \uXXXX unicode codepoint
-// \xXX the Latin-1 character
-// \u{X} ... \u{XXXXXX}	unicode codepoint
+ct('string tricks \uD800 \uDC00 \uD800 \uDC00 \x66', function() {
+	ct('===', parse('a').exec({a:'\'var'}), '\'var')
+	ct('===', parse('a').exec({a:'\"var'}), '\"var')
+	ct('===', parse('a').exec({a:'\"var'}), '"var')
+	ct('===', parse('a').exec({a:'\uD800'}), '\uD800')
+	ct('===', parse('a').exec({a:'\uDC00'}), '\uDC00')
+	ct('===', parse('a').exec({a:'\x66'}), 'f')
+	// \uXXXX unicode codepoint
+	// \xXX the Latin-1 character
+	// \u{X} ... \u{XXXXXX}	unicode codepoint
+})
 
-console.log('Chained Named Function...')
-var robj = {two: 2, nine: 9},
-		fobj = parse('eleven=two+nine')
+ct('Chained Named Function', function() {
+	var robj = {two: 2, nine: 9},
+			fobj = parse('eleven=two+nine')
 
-robj[fobj.name] = fobj.expr(robj)
-t.equal(robj.eleven, 11)
+	robj[fobj.name] = fobj.exec(robj)
+	ct('===', robj.eleven, 11)
 
-fobj = parse('ninetynine = eleven * nine')
-robj[fobj.name] = fobj.expr(robj)
-t.equal(robj.ninetynine, 99)
-
-console.log('=== END ===')
+	fobj = parse('ninetynine = eleven * nine')
+	robj[fobj.name] = fobj.exec(robj)
+	ct('===', robj.ninetynine, 99)
+})
