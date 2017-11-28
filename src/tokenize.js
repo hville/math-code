@@ -68,12 +68,11 @@ function tokenize(string) {
 
 	while(string) {
 		var tkn = getNextToken(string)
-		if (Array.isArray(tkn)) {
-			string = string.slice(tkn[0].length)
-			if (tkn[0] === '=') addAssignmentToken(tkn, tokens)
+		string = string.slice(tkn.text.length)
+		if (!tkn.type) {
+			if (tkn.text === '=') addAssignmentToken(tkn, tokens)
 			else addSpecialToken(tkn, tokens)
 		} else {
-			string = string.slice(tkn.length)
 			tokens.push(tkn)
 		}
 	}
@@ -83,16 +82,11 @@ function getNextToken(source){
 	for (var i=0; i < rules.length; ++i) {
 		//console.log(i, rules[i])
 		var res = rules[i].test.exec(source)
-		if (res) return createToken(res[0], rules[i].type)
+		if (res) return {text: res[0], type: rules[i].type}
 	}
-	return createToken(source, '$error')
+	return {text: source, type: '$error'}
 }
-function createToken(string, typ) {
-	if (!typ) return string
-	var tkn = [string]
-	tkn.type = typ
-	return tkn
-}
+
 function addSpecialToken(tkn, tokens) {
 	tokens.push(tkn)
 	tokens[tkn.type].push(tokens.length-1)
