@@ -1,101 +1,54 @@
-// combined assignments are not supported: >>>= <<= >>= **= += -= *= /= %= &= ^= |=
-// TODO dissalow dot operator and brackets???
-
-var rules = [
-	{
-		name: 'spacing',
-		test: /^[\s\u200C\u200D\uFEFF]+/,
-		type: '$space'
-	}, {
-		name: 'exclude',
-		test: arrToRE(Object.getOwnPropertyNames(Object.getPrototypeOf({})), false),
-		type: '$error'
-	}, {
-		name: 'numeric', // must be first after exclusions to catch allowed "."
-		test: /^(?:(?:\d*\.\d+|\d+)(?:[E|e][+|-]?\d+)?)|^NaN|^Infinity/
-	}, {
-		name: 'literal', // must be before Number, Math and identifier
-		test: arrToRE(['true', 'false', 'null'], false),
-	}, {
-		name: 'Number', //must be before Math (E vs EPSILON)
-		test: arrToRE(Object.getOwnPropertyNames(Number), false),
-		type: 'Number'
-	}, {
-		name: 'Math', //must be after Number (E vs EPSILON)
-		test: arrToRE(Object.getOwnPropertyNames(Math), false),
-		type: 'Math'
-	}, {
-		name: 'operator',
-		test: listToRE('( ) [ ] ** * / % + - ,'), //TODO remove ", [ ] **"?
-	}, {
-		name: 'bitwise', // must be before logical
-		test: listToRE('>>> << >> ~ & ^ |'), //TODO remove?
-	}, {
-		name: 'logical', // must be after bitwise
-		test: listToRE('=== !== == != <= >= && || ! < > ? :')
-	}, {
-		name: 'assignment', // must be after logical
-		test: /^\=/,
-		type: '$equal'
-	}, {
-		name: 'identifier', //must be last
-		test: /^[_\$A-Za-z][_\$A-Za-z0-9]*/,
-		type: '$param'
-	}
-]
+//@ts-check
+var rules = require('./rules'),
+		Token = require('./_token')
 
 module.exports = tokenize
 
-function arrToRE(arr, suffix) {
-	return RegExp('^(?:' + arr.join('|') + (suffix ? ')' : ')(?![_$A-Za-z0-9])'))
-}
-function listToRE(str) {
-	return arrToRE(str.split(' ').map(escapeRegExp), true)
-}
-function escapeRegExp(stringRegex) {
-	return stringRegex.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-}
-
+/**
+ * @param {string} string
+ * @return {Array<Token>}
+ */
 function tokenize(string) {
 	var tokens = []
-	tokens.Math = []
-	tokens.Number = []
-	tokens.$param = []
-	tokens.$equal = []
-	tokens.$error = []
-	tokens.$space = []
-	tokens.$name = []
 
 	while(string) {
 		var tkn = getNextToken(string)
+		tokens.push(tkn)
 		string = string.slice(tkn.text.length)
-		if (!tkn.type) {
-			if (tkn.text === '=') addAssignmentToken(tkn, tokens)
-			else addSpecialToken(tkn, tokens)
-		} else {
-			tokens.push(tkn)
-		}
+		// if assignment, check previous tokens for a single variable name
+		if (tkn.text === '=') setName(tokens)
 	}
+
 	return tokens
 }
+
+/**
+ * @param {string} source
+ * @return {Token}
+ */
 function getNextToken(source){
 	for (var i=0; i < rules.length; ++i) {
-		//console.log(i, rules[i])
 		var res = rules[i].test.exec(source)
-		if (res) return {text: res[0], type: rules[i].type}
+		if (res) return new Token(res[0], rules[i].type)
 	}
-	return {text: source, type: '$error'}
+	return new Token(source, '$error')
 }
 
-function addSpecialToken(tkn, tokens) {
-	tokens.push(tkn)
-	tokens[tkn.type].push(tokens.length-1)
-}
-function addAssignmentToken(tkn, tokens) {
-	if (tokens.$param.length === 1 && tokens.length === 1 + tokens.$space.length) {
-		tokens.$name.push(tokens.$param.pop())
-		tokens[tokens.$name[0]].type = '$name'
+/**
+ * @param {Array<Token>} tokens
+ * @return {void}
+ */
+function setName(tokens) {
+	var hasName = false
+	for (var i=0; i<tokens.length-1; ++i) {
+		if (tokens[i].type === '$param') {
+			tokens[i].type = hasName ? '$error' : '$name'
+			hasName = true
+		}
+		else if (tokens[i].type !== '$space') {
+			tokens[i].type = '$error'
+		}
 	}
-	else tkn.type = '$error'
-	addSpecialToken(tkn, tokens)
+	//dissalow '=...'
+	if (!hasName) tokens[tokens.length-1].type = '$error'
 }

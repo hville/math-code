@@ -1,16 +1,27 @@
-/*eslint no-console:0*/
 'use strict'
 var ct = require('cotest'),
 		parse = require('../src/parse')
 
-ct('=== START ===')
+ct('errors', function() {
+	ct('===', parse('a.b').errors, 1)
+	ct('===', parse('cos.constructor').errors, 1)
+	ct('===', parse('cos["constructor"]').errors, 1)
+	ct('===', parse('=b').errors, 1)
+	ct('===', parse('0=b').errors, 2)
+	ct('===', parse('a+b=c').errors, 2)
+
+	ct('===', parse(' __proto__').errors, 1)
+	ct('===', parse('a+constructor').errors, 1)
+	ct('===', parse('window["something"]').errors, 1)
+	ct('===', parse(' __proto__').errors, 1)
+
+	ct('===', parse(' constructorABC').errors, 0)
+})
 
 ct('Arguments', function() {
-	ct('===', parse('a').tokens[0].toString(), 'a')
+	ct('===', parse('a').tokens[0].text, 'a')
 	ct('===', parse('a').args.length, 1)
-	ct('{==}', parse('a+b').tokens.$param, [0, 2])
 	ct('{==}', parse('a+b').args, ['a', 'b'])
-	ct('===', parse('a+b').args.length, 2)
 })
 
 ct('No Args', function() {
@@ -59,16 +70,10 @@ ct('Named Function', function() {
 	ct('===', parse('new').exec({new:'new'}), 'new')
 })
 
-ct('string tricks \uD800 \uDC00 \uD800 \uDC00 \x66', function() {
-	ct('===', parse('a').exec({a:'\'var'}), '\'var')
-	ct('===', parse('a').exec({a:'\"var'}), '\"var')
-	ct('===', parse('a').exec({a:'\"var'}), '"var')
-	ct('===', parse('a').exec({a:'\uD800'}), '\uD800')
-	ct('===', parse('a').exec({a:'\uDC00'}), '\uDC00')
-	ct('===', parse('a').exec({a:'\x66'}), 'f')
-	// \uXXXX unicode codepoint
-	// \xXX the Latin-1 character
-	// \u{X} ... \u{XXXXXX}	unicode codepoint
+ct('string tricks \uD800 \uDC00 \x66', function() {
+	ct('===', parse('\uD800').errors, 1)
+	ct('===', parse('\uDC00').errors, 1)
+	ct('===', parse('\x66').args[0], 'f')
 })
 
 ct('Chained Named Function', function() {
