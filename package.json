@@ -2,7 +2,9 @@
   "version": "0.0.4",
   "description": "random number generators for specified range and shape",
   "main": "./index.js",
-  "dependencies": {},
+  "dependencies": {
+    "js-tokens": "^3.0.2"
+  },
   "devDependencies": {
     "@types/node": "^8.0.53",
     "cotest": "^3.0.0"
