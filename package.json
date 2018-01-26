@@ -1,20 +1,24 @@
 {
-  "name": "@private/math-code",
-  "version": "0.0.1",
+  "name": "@hugov/math-code",
+  "version": "0.1.0",
   "description": "lightweight equation parser",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^8.0.55",
+    "@types/node": "^9.4.0",
     "cotest": "^3.0.0",
     "grosso-modo": "^2.1.0",
     "lazy-stats": "^2.0.1"
   },
   "scripts": {
-    "test": "npm run build & cotest ./test",
-    "build": "node src/$rule",
-    "publish": "npm run test & npm publish --access=public"
+    "test": "npm run rule && cotest ./test",
+    "rule": "node src/$rule",
+    "post": "npm test && npm publish --access=public"
   },
-  "keywords": ["Math", "parse", "token"],
+  "keywords": [
+    "Math",
+    "parse",
+    "token"
+  ],
   "author": "Hugo Villeneuve",
   "license": "MIT",
   "repository": {
