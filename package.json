@@ -1,26 +1,24 @@
 {
-  "version": "0.0.4",
-  "description": "random number generators for specified range and shape",
-  "main": "./index.js",
-  "dependencies": {
-    "js-tokens": "^3.0.2"
-  },
+  "name": "@private/math-code",
+  "version": "0.0.1",
+  "description": "lightweight equation parser",
+  "dependencies": {},
   "devDependencies": {
-    "@types/node": "^8.0.53",
-    "cotest": "^3.0.0"
+    "@types/node": "^8.0.55",
+    "cotest": "^3.0.0",
+    "grosso-modo": "^2.1.0",
+    "lazy-stats": "^2.0.1"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "npm run build & cotest ./test",
+    "build": "node src/$rule",
+    "publish": "npm run test & npm publish --access=public"
   },
-  "keywords": [],
+  "keywords": ["Math", "parse", "token"],
   "author": "Hugo Villeneuve",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "bitbucket:hville/math-parse"
-  },
-  "publishConfig": {
-    "registry": "http://localhost:4873/"
-  },
-  "name": "@private/math-parse"
+    "url": "https://github.com/hville/math-code.git"
+  }
 }
