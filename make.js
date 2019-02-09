@@ -1,13 +1,13 @@
 /**
  * @param {string} code
- * @return {Function}
+ * @return {Function|Error}
  */
 module.exports = function(code) {
 	try {
-		return code ? Function('i', 'if (!i) i={};' + code + 'return i') : null
+		return code.constructor === Error ? code : Function('i', 'if (!i) i={};' + code + ';return i')
 	}
 	catch (e) {
-		return null
+		return e
 	}
 }
 

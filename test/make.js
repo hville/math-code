@@ -9,15 +9,20 @@ function build(brief) {
 
 var input = {patate: 3}
 
-ct('build code', function() {
+ct('chop |> code |> make', function() {
 	ct('===', build('res=PI*EPSILON*patate')(input).res, Math.PI*Number.EPSILON*3)
 	ct('===', build('res=sin(PI)')(input).res, Math.sin(Math.PI))
 	input.x3 = x=>x*3
 	ct('===', build('cst=PI*EPSILON; res=x3(cst)')(input).res, Math.PI*Number.EPSILON*3)
 	ct('===', build('cst=PI*EPSILON; res=x3(cst)')(input).res, Math.PI*Number.EPSILON*3)
-	ct('===', build(';;;=PI'), null)
-	ct('===', build(';;;x=prototype'), null)
-	ct('===', build(';;;x=3==='), null)
-	ct('===', build('sin()'), null)
-	ct('===', build('x=sin('), null)
+})
+
+ct('make errors', function() {
+	ct('===', build(';;;x=3===').message, 'Unexpected token ;')
+	ct('===', build('x=').message, 'Unexpected token ')
+	ct('===', build('=x').message, 'Unexpected token =')
+	ct('===', build('x=sin(').message, 'Unexpected token ;')
+	ct('===', build(';;;=PI').message, 'Unexpected token =')
+	ct('===', build(';;;x=prototype').message, 'Unexpected token prototype')
+	ct('===', build('sin()').message, 'Unexpected token sin')
 })

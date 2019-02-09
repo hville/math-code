@@ -25,7 +25,7 @@ if `scope` is specified, adds the scope keys as prefix to identifiers. Scope can
 Example: `chop('sin', {Math}) === [['sin', 'Math.']]`
 
 
-### code(tokens: [Token]): string
+### code(tokens: [Token]): string|Error
 
 Creates safe javascript code from the token by adding prefix to identifiers. Retuns the empty string if any blacklisted tokens are encountered (Object.prototype keys, `[`, `]`, `"`, `.`, `'`)
 
@@ -37,7 +37,7 @@ Examples:
 * `code(chop('Object.getPrototypeOf')) === ''`
 
 
-### make(code: string): Object => Object
+### make(code: string): Function<Object => Object>|Error
 
 Creates safe javascript function from the generated code. Return `null` if the function is invalid.
 Examples:

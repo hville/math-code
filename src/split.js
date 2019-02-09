@@ -1,6 +1,3 @@
-// combined assignments are not supported: >>>= <<= >>= **= += -= *= /= %= &= ^= |=
-// not using js-tokens since whitelist is easier to maintain than blacklist
-
 var T = require('../types'),
 		rule = require('./rule')
 

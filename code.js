@@ -10,7 +10,7 @@ module.exports = function(tokens) {
 		var tkn = tokens[i]
 		switch (tkn[1]) {
 			case T.error:
-				return ''
+				return new Error('Unexpected token '+tkn[0])
 			case T.nline:
 				code += ';'
 				break

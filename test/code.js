@@ -9,7 +9,7 @@ function script(brief) {
 ct('code', function() {
 	ct('===', script('r=PI'), 'i.r=Math.PI;')
 	ct('===', script('r=PI*EPSILON*patate'), 'i.r=Math.PI*Number.EPSILON*i.patate;')
-	ct('===', script('PI=EPSILON'), '')
-	ct('===', script('=EPSILON'), '')
-	ct('===', script('r*x=EPSILON'), '')
+	ct('===', script('PI=EPSILON').message, 'Unexpected token PI')
+	ct('===', script('=EPSILON').message, 'Unexpected token =')
+	ct('===', script('r*x=EPSILON').message, 'Unexpected token *')
 })
