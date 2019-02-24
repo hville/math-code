@@ -19,7 +19,7 @@ module.exports = function(brief, scope) {
 
 	while( (match = rule.exec(brief)) ) {
 		var txt = match[0]
-		var typ = match[1] ? T.number
+		tokens.push(txt, match[1] ? T.number
 			: match[2] ? T.error
 			: match[3] ? T.const
 			: match[4] ? names.get(txt) || T.input
@@ -27,8 +27,8 @@ module.exports = function(brief, scope) {
 			: match[6] ? T.nline
 			: match[7] ? T.space
 			: T.error
-		tokens.push([txt, typ])
+		)
 	}
-	tokens.push(['', T.nline])
+	//tokens.push('', T.nline)
 	return tokens
 }

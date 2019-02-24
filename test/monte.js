@@ -35,9 +35,9 @@ for (var i=0; i<N; ++i) {
 	stats.push(setup.achat$, setup.tempsA, setup.mensuel)
 }
 
-ct('simulation', () => {
-	ct('===', stats.N, N)
-	ct('>', stats.ave(0), 1000)
+ct('simulation', t => {
+	t('===', stats.N, N)
+	t('>', stats.ave(0), 1000)
 })
 
 /* eslint-disable no-console */

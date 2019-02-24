@@ -7,10 +7,11 @@ var T = require('./types')
 module.exports = function(tokens) {
 	var code = ''
 	for (var i=0; i<tokens.length; ++i) {
-		var tkn = tokens[i]
-		switch (tkn[1]) {
+		var txt = tokens[i],
+				typ = tokens[++i]
+		switch (typ) {
 			case T.error:
-				return new Error('Unexpected token '+tkn[0])
+				return new Error('Unexpected token ' + txt)
 			case T.nline:
 				code += ';'
 				break
@@ -18,13 +19,13 @@ module.exports = function(tokens) {
 				code += ' '
 				break
 			case T.number: case T.const: case T.assign: case T.operator:
-				code += tkn[0]
+				code += txt
 				break
 			case T.input: case T.yield:
-				code += ('i.' + tkn[0])
+				code += ('i.' + txt)
 				break
 			default: //scope
-				code += tkn[1] + tkn[0]
+				code += typ + txt
 		}
 	}
 	return code

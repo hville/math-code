@@ -1,11 +1,11 @@
 {
   "name": "@hugov/math-code",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "lightweight equation parser",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^9.4.0",
-    "cotest": "^3.0.0",
+    "@types/node": "^11.9.5",
+    "cotest": "^4.0.2",
     "grosso-modo": "^2.1.0",
     "lazy-stats": "^2.0.1"
   },
