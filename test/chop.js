@@ -1,8 +1,8 @@
 var chop = require('../chop'),
 		ct = require('cotest')
 
-function tType(txt) {
-	return chop(txt).filter( (v,i) => !!(i&1) )
+function tType(txt, ctx) {
+	return chop(txt, ctx).filter( (v,i) => !!(i&1) )
 }
 
 ct('finds inputs and yields #1', t => {
@@ -53,6 +53,20 @@ ct('reject incomplete line', t => {
 	t('===', tkns[4], ' ')
 	t('===', tkns[5], 'y')
 	t('===', tkns[6], 'e')
+})
+
+ct('reject parens mismatch', t => {
+	t('===', tType('a=(')[2], 'e')
+	t('===', tType('a=)')[2], 'e')
+	t('===', tType('a=())')[4], 'e')
+	t('{===}', tType('a=((3*2)')[2], 'e')
+	t('===', tType('a=)()')[2], 'e')
+	t('===', tType('a=(*)')[3], 'e')
+})
+
+ct('scoped', t => {
+	t('===', tType('a=PI', {Math})[2], 'Math.')
+	t('===', tType('a=cos(1)', {Math})[2], 'Math.')
 })
 
 ct('reject multiple ids before "="', t => {

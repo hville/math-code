@@ -4,7 +4,8 @@
  */
 module.exports = function(tokens) {
 	var exists = new Set, // defined values
-			last = 'r'
+			last = 'r',
+			lvls = []
 
 	//positions, ignoring whitespaces: 1:arg. 2:eq 3:!ns && !eq]
 	for (var t=0; t<tokens.length; ++t) {
@@ -12,28 +13,49 @@ module.exports = function(tokens) {
 				typ = tokens[++t]
 		switch (typ) {
 			case 'r':
-				if (last === 'y' || last === '=') tokens[t] = 'e' //too short to be an assignment
-				else last = typ
+				if (last === 'v' || last === 'r') last = 'r'
+				else tokens[t] = 'e'
+				break
+			case '=':
+				if (last !== 'y') tokens[t] = 'e'
+				else last = '*'
 				break
 			case 'x':
-				//wrong position or Object properties
-				if (last === 'y' || last === 'x') tokens[t] = 'e'
+				if (last === 'y' || last === 'v') tokens[t] = 'e'
 				else if (last === 'r') {
 					tokens[t] = !exists.has(txt) ? (last = (exists.add(txt), 'y')) : 'e'
 				}
-				else last = typ
+				else last = 'v'
 				break
-			case '=':
-				if (last !== 'y') tokens[t] = 'e' //wrong position
-				else last = typ
+			case 'n': case 'k':
+				if (last === '*') last = 'v'
+				else tokens[t] = 'e'
+				break
+			case '*':
+				if (txt === '(') { // A*() || =() || A()
+					last = '*'
+					lvls.push(t)
+				}
+				else if (txt === ')') {
+					if (lvls.pop()) last = 'v'
+					else tokens[t] = 'e'
+				}
+				else {
+					if (last === 'v') last = typ
+					else tokens[t] = 'e'
+				}
 				break
 			case ' ': case 'e': break
-			default: //number, operator, constant, custom
-				if (last === 'r' || last === 'y') tokens[t] = 'e'
-				else last = typ
+			default: //custom
+				if (typ[typ.length-1] === '.') {
+					if (last === '*') last = 'v'
+					else tokens[t] = 'e'
+				}
+				else tokens[t] = 'e'
 				break
 		}
 	}
-	if (last === 'y' || last === '=') tokens[tokens.length-1] = 'e'
+	if (last !== 'v' && last !== 'r') tokens[tokens.length-1] = 'e'
+	for (var i=0; i<lvls.length; ++i) tokens[lvls[i]] = 'e'
 	return tokens
 }

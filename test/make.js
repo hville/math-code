@@ -18,10 +18,10 @@ ct('chop |> code |> make', t => {
 })
 
 ct('make errors', t => {
-	t('===', build(';;;x=3===').message, 'Unexpected token ;')
-	//t('===', build('x=').message, 'Unexpected token ;')
+	t('===', build(';;;x=3===').message, 'Unexpected token ===')
+	t('===', build('x=').message, 'Unexpected token =')
 	t('===', build('=x').message, 'Unexpected token =')
-	t('===', build('x=sin(').message, 'Unexpected token ;')
+	t('===', build('x=sin(').message, 'Unexpected token (')
 	t('===', build(';;;=PI').message, 'Unexpected token =')
 	t('===', build(';;;x=prototype').message, 'Unexpected token prototype')
 	t('===', build('sin()').message, 'Unexpected token sin')
