@@ -1,40 +1,39 @@
-var T = require('../types')
-
 /**
- * @param {Array<Array<string>>} tokens
- * @return {Array<Array<string>>}
+ * @param {Array<string>} tokens
+ * @return {Array<string>}
  */
 module.exports = function(tokens) {
-	var exists = new Set // defined values
+	var exists = new Set, // defined values
+			last = 'r'
 
 	//positions, ignoring whitespaces: 1:arg. 2:eq 3:!ns && !eq]
-	for (var t=0, pos = 0; t<tokens.length; ++t) {
+	for (var t=0; t<tokens.length; ++t) {
 		var txt = tokens[t],
 				typ = tokens[++t]
 		switch (typ) {
-			case T.nline:
-				if (pos === 1 || pos === 2) tokens[t] = T.error //too short to be an assignment
-				pos = 0
+			case 'r':
+				if (last === 'y' || last === '=') tokens[t] = 'e' //too short to be an assignment
+				else last = typ
 				break
-			case T.input:
+			case 'x':
 				//wrong position or Object properties
-				if (pos === 1) tokens[t] = T.error
-				else if (!exists.has(txt) && pos === 0) {
-					tokens[t] = T.yield
-					exists.add(txt)
+				if (last === 'y' || last === 'x') tokens[t] = 'e'
+				else if (last === 'r') {
+					tokens[t] = !exists.has(txt) ? (last = (exists.add(txt), 'y')) : 'e'
 				}
-				++pos
+				else last = typ
 				break
-			case T.assign:
-				if (pos !== 1) tokens[t] = T.error //wrong position
-				++pos
+			case '=':
+				if (last !== 'y') tokens[t] = 'e' //wrong position
+				else last = typ
 				break
-			case T.space: case T.error: break
+			case ' ': case 'e': break
 			default: //number, operator, constant, custom
-				if (pos < 2) tokens[t] = T.error
-				++pos
+				if (last === 'r' || last === 'y') tokens[t] = 'e'
+				else last = typ
 				break
 		}
 	}
+	if (last === 'y' || last === '=') tokens[tokens.length-1] = 'e'
 	return tokens
 }

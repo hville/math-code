@@ -1,7 +1,5 @@
-var T = require('./types')
-
 /**
- * @param {Array<Array<string>>} tokens
+ * @param {Array<string>} tokens
  * @return {Object}
  */
 module.exports = function(tokens) {
@@ -10,18 +8,18 @@ module.exports = function(tokens) {
 		var txt = tokens[i],
 				typ = tokens[++i]
 		switch (typ) {
-			case T.error:
+			case 'e':
 				return new Error('Unexpected token ' + txt)
-			case T.nline:
+			case 'r':
 				code += ';'
 				break
-			case T.space:
+			case ' ':
 				code += ' '
 				break
-			case T.number: case T.const: case T.assign: case T.operator:
+			case 'n': case 'k': case '=': case '*':
 				code += txt
 				break
-			case T.input: case T.yield:
+			case 'x': case 'y':
 				code += ('i.' + txt)
 				break
 			default: //scope

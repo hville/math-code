@@ -4,7 +4,7 @@ var split = require('./src/split'),
 /**
  * @param {string} brief
  * @param {Object} [scope]
- * @return {Array<Array<string>>}
+ * @return {Array<string>}
  */
 module.exports = function(brief, scope) {
 	return check(split(brief, scope))

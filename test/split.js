@@ -1,6 +1,5 @@
 var split = require('../src/split'),
-		ct = require('cotest'),
-		T = require('../types')
+		ct = require('cotest')
 
 
 function tType(txt) {
@@ -13,9 +12,9 @@ function tText(txt) {
 ct('dot', t => {
 	const tkns = tType('aa.bb')
 	t('===', tkns.length, 3)
-	t('===', tkns[0], T.input)
-	t('===', tkns[1], T.error)
-	t('===', tkns[2], T.input)
+	t('===', tkns[0], 'x')
+	t('===', tkns[1], 'e')
+	t('===', tkns[2], 'x')
 })
 
 ct('Numbers', t => {
@@ -35,17 +34,17 @@ ct('Numbers', t => {
 })
 
 ct('White Spaces', t => {
-	t('{==}', split(' \n.1e-23a')[1], T.nline)
-	t('{==}', split(' \t .1e-23a')[1], T.space)
+	t('{==}', split(' \n.1e-23a')[1], 'r')
+	t('{==}', split(' \t .1e-23a')[1], ' ')
 
-	t('{==}', split('.1e-23 \n')[3], T.nline)
-	t('{==}', split('.1e-23 \t ')[3], T.space)
+	t('{==}', split('.1e-23 \n')[3], 'r')
+	t('{==}', split('.1e-23 \t ')[3], ' ')
 
 	t('===', split(`
-		b = `)[1], T.nline
+		b = `)[1], 'r'
 	)
 	t('===', split(`b=a
-		c=b`)[7], T.nline
+		c=b`)[7], 'r'
 	)
 })
 
@@ -83,34 +82,34 @@ ct('literal', t => {
 	t('===', split('null>a0123.3')[0], 'null')
 	t('===', split('false>=_$Ab0.3')[0], 'false')
 	t('===', split('nully===$0.3')[0], 'nully')
-	t('===', split('nully===$0.3')[1], T.input)
+	t('===', split('nully===$0.3')[1], 'x')
 
 	t('===', split(' null>a0123.3')[2], 'null')
 	t('===', split('+false>=_$Ab0.3')[2], 'false')
 	t('===', split('-nully===$0.3')[2], 'nully')
-	t('===', split('/nully===$0.3')[3], T.input)
+	t('===', split('/nully===$0.3')[3], 'x')
 })
 
 ct('identifiers', t => {
 	t('===', split(' a0123.3')[2], 'a0123')
-	t('===', split(' a0123.3')[3], T.input)
+	t('===', split(' a0123.3')[3], 'x')
 })
 
 ct('assignment', t => {
-	t('===', split('myFunc = 4')[1], T.input)
-	t('===', split(' myFunc = 4')[3], T.input)
+	t('===', split('myFunc = 4')[1], 'x')
+	t('===', split(' myFunc = 4')[3], 'x')
 
-	t('===', split('myFunc =4=')[1], T.input)
-	t('===', split('myFunc =4=')[3], T.space)
-	t('===', split('myFunc =4=')[5], T.assign)
-	t('===', split('myFunc =4=')[7], T.number)
-	t('===', split('myFunc =4=')[9], T.assign)
+	t('===', split('myFunc =4=')[1], 'x')
+	t('===', split('myFunc =4=')[3], ' ')
+	t('===', split('myFunc =4=')[5], '=')
+	t('===', split('myFunc =4=')[7], 'n')
+	t('===', split('myFunc =4=')[9], '=')
 
-	t('===', split('+myFunc=4=')[1], T.operator)
-	t('===', split('+myFunc=4=')[3], T.input)
-	t('===', split('+myFunc=4=')[5], T.assign)
-	t('===', split('+myFunc=4=')[7], T.number)
-	t('===', split('+myFunc=4=')[9], T.assign)
+	t('===', split('+myFunc=4=')[1], '*')
+	t('===', split('+myFunc=4=')[3], 'x')
+	t('===', split('+myFunc=4=')[5], '=')
+	t('===', split('+myFunc=4=')[7], 'n')
+	t('===', split('+myFunc=4=')[9], '=')
 })
 
 ct('javascript control characters', t => {
@@ -135,11 +134,11 @@ ct('preserve string', t => {
 
 ct('scope', t => {
 	var combo = split('cst=PI*EPSILON;res=x3(arg*cst)', {Math, Number: Object.getOwnPropertyNames(Number), X:null})
-	t('===', combo[1], T.input)
-	t('===', combo[3], T.assign)
+	t('===', combo[1], 'x')
+	t('===', combo[3], '=')
 	t('===', combo[5], 'Math.')
-	t('===', combo[7], T.operator)
+	t('===', combo[7], '*')
 	t('===', combo[9], 'Number.')
-	t('===', combo[11], T.nline)
-	t('===', combo[13], T.input)
+	t('===', combo[11], 'r')
+	t('===', combo[13], 'x')
 })

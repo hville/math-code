@@ -1,10 +1,9 @@
-var T = require('../types'),
-		rule = require('./rule')
+var rule = require('./rule')
 
 /**
  * @param {string} brief
  * @param {Object} [scope]
- * @return {Array<Array<string>>}
+ * @return {Array<string>}
  */
 module.exports = function(brief, scope) {
 	var tokens = [],
@@ -19,14 +18,14 @@ module.exports = function(brief, scope) {
 
 	while( (match = rule.exec(brief)) ) {
 		var txt = match[0]
-		tokens.push(txt, match[1] ? T.number
-			: match[2] ? T.error
-			: match[3] ? T.const
-			: match[4] ? names.get(txt) || T.input
-			: match[5] ? txt === '=' ? T.assign : T.operator
-			: match[6] ? T.nline
-			: match[7] ? T.space
-			: T.error
+		tokens.push(txt, match[1] ? 'n'
+			: match[2] ? 'e'
+			: match[3] ? 'k'
+			: match[4] ? names.get(txt) || 'x'
+			: match[5] ? txt === '=' ? '=' : '*'
+			: match[6] ? 'r'
+			: match[7] ? ' '
+			: 'e'
 		)
 	}
 	//tokens.push('', T.nline)
