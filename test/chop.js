@@ -80,3 +80,8 @@ ct('reject multiple ids before "="', t => {
 	t('===', tkns[5], 'e')
 })
 
+ct('random vars?', t => {
+	t('{===}', tType('z=(1,2)'), ['y','=','*','n','*','n','*'])
+	t('{===}', tType('z=(1,2; r)'), ['y','=','*','n','*','n','*'])
+})
+
