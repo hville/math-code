@@ -2,7 +2,7 @@ var ct = require('cotest'),
 		assign = require('../examples/stat-rule'),
 		fuseCode = require('../examples/stat-code')
 
-ct('all together now, and fail', t => {
+ct('fuse stat math', t => {
 	t('===', assign.run('y=50.3e2   ').j, 11)
 	t('===', assign.run('y =50.3e2 %').j, 11)
 	t('===', assign.run('y=  50.3e2%').j, 11)
@@ -25,4 +25,6 @@ ct('all together now, and fail', t => {
 	t('===', assign.run('y=(2+cos(4%))+5%%').fuse(), 'y=(2+cos(4%))+5%%')
 	t('===', assign.run('y=(2+cos(4%))+5%%').fuse(fuseCode), 'i.y=(2+Math.cos(4/100))+5/100/100')
 	t('===', assign.run('y.x=2').err, true)
+	t('===', assign.run('y=prototype').err, true)
+	t('===', assign.run('y=prototypes').err, false)
 })

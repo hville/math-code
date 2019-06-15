@@ -18,11 +18,17 @@ if (this.constructor !== Any) return Any.apply(Object.create(Any.prototype), arg
 //[+]factory
 return Object.create(Any.prototype)
 
-//99 [+]all Rule Objects
+//99 [+]all Rule Objects [~]new set prop
 var A = any({kin: 'A'}),
     B = any({kin: 'B'}, A, 'b'),
     C = any(A, B, any('c'))
 A.set('a')
+
+//109 ? this.constructor === Any ? this : new Any
+var A = any({kin: 'A'}),
+    B = any({kin: 'B'}, A, 'b'),
+    C = any(A, B, any('c'))
+A.constructor('a')
 
 //105 [+]current [~]vanillaObjects
 var A = {kin: 'A'},

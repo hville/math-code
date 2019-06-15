@@ -2,9 +2,7 @@ var ct = require('cotest'),
 		//not = require('../new/not'),
 		any = require('../any'),
 		all = require('../all'),
-		rep = require('../rep'),
-		not = require('../not')
-
+		rep = require('../rep')
 function test(t, res, ref) {
 	for (var i=0, ks=Object.keys(ref); i<ks.length; ++i) t('===', res[ks[i]], ref[ks[i]])
 }
@@ -159,15 +157,15 @@ ct('any => array', t => {
 })
 ct('fuse', t => {
 	t('===', all('ab', 'cd').run('ab').fuse(), 'ab')
-	t('===', all('ab', not(/[^]*/)).run('abxy').fuse(), 'abxy')
-	t('===', all('ab', not.call({kin: 'xxx'}, /[^]*/)).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'abXY')
-	t('===', all.call({kin: 'xxx'}, 'ab', not(/[^]*/)).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'ABXY')
-	t('===', all.call({kin: 'all'}, 'ab', not.call({kin:'not'}, /[^]*/)).run('abxy').fuse({
+	t('===', all('ab', any.call({kin: 'xxx'}, /[^]*/)).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'abXY')
+	t('===', all.call({kin: 'xxx'}, 'ab', /[^]*/).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'ABXY')
+	t('===', all.call({kin: 'all'}, 'ab', any.call({kin:'not'}, /[^]*/)).run('abxy').fuse({
 		not: txt=>txt.replace('y', 'z'),
 		all: txt => txt.toUpperCase()
 	}), 'ABXZ')
 
 })
+/*
 ct('not fail', t => {
 	test(t, not.call({kin: 'kin'}, 'abc').run('abc'), {
 		kin:'kin', i:0, txt: 'abc', j: 3, err: true
@@ -182,8 +180,11 @@ ct('not fail', t => {
 		kin:'', i:1, txt: '', j: 1, err: true
 	})
 })
+*/
+/*
 ct('not fail', t => {
 	t('===', not('abc').run('abc').err, true)
+	t('===', not('def','abc').run('abc').err, true)
 	t('===', not('abc').run('abc').i, 0)
 	t('===', not('abc').run('abc').j, 3)
 
@@ -195,6 +196,9 @@ ct('not pass', t => {
 	test(t, not('abc').run('ab'), {
 		kin:'', i:0, txt: '', j: 0, err: false
 	})
+	test(t, not('def', 'abc').run('ab'), {
+		kin:'', i:0, txt: '', j: 0, err: false
+	})
 	test(t, not('abc').run('aabc'), {
 		kin:'', i:0, txt: '', j: 0, err: false
 	})
@@ -204,12 +208,16 @@ ct('not pass', t => {
 	test(t, not('abc').run('abc', 3), {
 		kin:'', i:3, txt: '', j: 3, err: false
 	})
+	test(t, not('def', 'abc').run('abc', 3), {
+		kin:'', i:3, txt: '', j: 3, err: false
+	})
 })
-ct('all together now', t => {
+*/
+ct.skip('all together now', t => {
 	var ops = /[+*-/]/,
 			nmb = /[0-9]+/,
 			_ = rep(/[ \t]+/),
-			exp = all(nmb, _, rep(all(ops, _, nmb)), not.call({kin:'err'},/[^]+/))
+			exp = all(nmb, _, rep(all(ops, _, nmb)))
 	var res = exp.run('12  +34+ 45')
 	t('===', res.err, false)
 	t('===', res.kin, '')
@@ -224,3 +232,13 @@ ct('all together now', t => {
 	t('===', err.fuse(), '12+  ')
 	t('===', err.fuse({err: txt => txt.replace(/[^]/g, '#')}), '12###')
 })
+/*
+ct('and pass', t => {
+	test(t, and.call({kin: 'kin'}, 'abc', 'ab').run('abc'), {
+		kin:'kin', i:0, txt: 'ab', j: 2, err: false
+	})
+	test(t, and(/[a-z]+/, not('prototype', 'constructor')).run('abc'), {
+		kin:'kin', i:0, txt: 'abc', j: 3, err: false
+	})
+})
+ */

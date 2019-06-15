@@ -1,12 +1,11 @@
 var any = require('../any'),
 		all = require('../all'),
 		rep = require('../rep'),
-		tok = require('../tok'),
-		not = require('../not')
+		tok = require('../tok')
 
 
 var number = /(?:\d*\.\d+|\d+)(?:[E|e][+|-]?\d+)?/,
-		id = [tok.call({kin:'id'}, /[_$A-Za-z][$\w]*/), tok({kin:err}, /(?:prototype|toString|constructor|valueOf|toLocaleString)(?![$\w])/)],
+		id = tok.call({kin:'id'}, /(?!(?:prototype|toString|constructor|valueOf|toLocaleString)(?![$\w]))[_$A-Za-z][$\w]*/),
 		op = /\*{1,2}|[+\-*/,]/,
 		percent = all.call({kin: 'percent'}, '%'),
 		_ = rep(' '), /// */,
