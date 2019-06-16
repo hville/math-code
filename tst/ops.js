@@ -145,6 +145,7 @@ ct('rep fail', t => {
 	t('===', rep('ab', 3).run('ababX').j, 5)
 })
 
+/*
 ct('any => array', t => {
 	var allany = all(['a', 'b'], ['c', 'd']).run('bd'),
 			repany = rep(['a', 'b']).run('aabb')
@@ -155,6 +156,7 @@ ct('any => array', t => {
 	t('===', repany.err, false)
 	t('===', repany.j, 4)
 })
+*/
 ct('fuse', t => {
 	t('===', all('ab', 'cd').run('ab').fuse(), 'ab')
 	t('===', all('ab', any.call({kin: 'xxx'}, /[^]*/)).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'abXY')

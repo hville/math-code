@@ -1,14 +1,13 @@
 var THIS = require('./src/_this'),
 		Pack = require('./src/_pack'),
-		text = require('./tok'),
-		any = require('./any')
+		text = require('./tok')
 
 module.exports = function() {
 	var opt = []
 	for (var i=0; i<arguments.length; ++i) {
 		var arg = arguments[i],
 				typ = arg.constructor
-		opt[i] = typ === Object ? arg : typ === Array ? any.apply(null, arg) : text(arg)
+		opt[i] = typ === Object ? arg : text(arg)
 	}
 	if (this === THIS) return {
 		kin: '',

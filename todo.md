@@ -1,5 +1,8 @@
 # todo
 
+* [ ] capture remaining string for formating
+
+
 * match words except some (not?)
   `and(/[$_a-zA-Z0-9][$\w]*/, not('null'))`
 

@@ -28,3 +28,7 @@ Pack.prototype.fuse = function(xfos) {
 	for (var i=0; i<set.length; ++i) res += set[i].fuse(xfos)
 	return fcn ? fcn.call(this, res) : res
 }
+Pack.prototype.reduce = function(red, tgt) {
+	for (var i=0, set = this.set; i<set.length; ++i) tgt = red(tgt, set[i])
+	return tgt
+}

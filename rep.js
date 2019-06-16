@@ -1,11 +1,10 @@
 var THIS = require('./src/_this'),
 		Pack = require('./src/_pack'),
-		text = require('./tok'),
-		any = require('./any')
+		text = require('./tok')
 
 module.exports = function(rule, min, max) {
 	var typ = rule.constructor,
-			opt = [typ === Object ? rule : typ === Array ? any.apply(null, rule) : text(rule), min || 0, max || Infinity]
+			opt = [typ === Object ? rule : text(rule), min || 0, max || Infinity]
 	if (this === THIS) return {
 		kin: '',
 		opt: opt,
@@ -19,7 +18,7 @@ module.exports = function(rule, min, max) {
 function runrep(string, index) {
 	var rule = this.opt[0],
 			min = this.opt[1],
-			max = this.opt[2],
+			max = Math.min(this.opt[2], string.length),
 			pack = new Pack(this.kin, index || 0)
 	for (var i=0; i<max; ++i) {
 		var res = rule.run(string, pack.j)
