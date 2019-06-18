@@ -19,12 +19,11 @@ module.exports = function() {
 	return this
 }
 
-function runall(string, index) {
+function runall(string, index, debug) {
 	var ops = this.opt,
 			pack = new Pack(this.kin, index || 0)
 	for (var i=0; i<ops.length; ++i) {
-		//if (pack.j === string.length)
-		if (pack.add(ops[i].run(string, pack.j)).err) break
+		if (pack.add(ops[i].run(string, pack.j, debug)).err && !debug) break
 	}
 	return pack
 }

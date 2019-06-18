@@ -2,15 +2,7 @@ var rule = require('./stat-rule'),
 		tok = require('../tok')
 
 var tail = tok(/[^]+$/),
-		HTML = {
-			'': function(alt) { return alt[0] === '<' ? alt : this.err ? '<u>'+alt+'</u>' : alt},
-			id: function(alt) { return this.err ? '<u>'+alt+'</u>' : '<i>'+alt+'</i>'}
-		},
-		mathKeys = new Set(Object.getOwnPropertyNames(Math)),
-		CODE = {
-			percent: function() { return '/100' },
-			id: function(txt) { return this.err ? new Error('Unexpected token ' + txt) : mathKeys.has(txt) ? 'Math.' + txt : 'i.' + txt}
-		}
+		mathKeys = new Set(Object.getOwnPropertyNames(Math))
 
 function htmlRed(tgt, itm) {
 	var txt = itm.txt
@@ -23,11 +15,18 @@ function htmlRed(tgt, itm) {
 }
 function codeRed(tgt, itm) {
 	if (itm.constructor === Error) return itm
-	if (itm.err) return new Error('Unexpected token at ' + itm.i)
+	if (itm.err) {
+		console.log('err',itm)
+		return new Error('Unexpected token at ' + itm.i)
+	}
 	if (itm.kin === 'percent') return tgt + '/100'
 	var txt = itm.txt
 	if (itm.kin === 'id') {
 		return mathKeys.has(txt) ? (tgt+'Math.'+txt) : (tgt + 'i.' + txt)
+	}
+	if (itm.kin === 'random') {
+		console.log('random',itm)
+		return tgt+'666'
 	}
 	return tgt + txt
 }
@@ -37,26 +36,17 @@ module.exports = function(string) {
 	if (tree.j !== string.length) {
 		var last = tail.run(string, tree.j)
 		last.err = true
-		console.log('adding tail:', last)
 		tree.add(last)
 	}
-	var html = tree.fuse(HTML),
-			code = tree.fuse(CODE),
-			htmR = tree.reduce(htmlRed, ''),
-			codR = tree.reduce(codeRed, ''),
-			exec,
-			exeR
+	var html = tree.reduce(htmlRed, ''),
+			code = tree.reduce(codeRed, ''),
+			exec
 	try {
 		exec = code.constructor === Error ? code : Function('i', 'if (!i) i={};' + code + ';return i')
 	} catch (e) {
 		exec = e
 	}
-	try {
-		exeR = codR.constructor === Error ? codR : Function('i', 'if (!i) i={};' + codR + ';return i')
-	} catch (e) {
-		exeR = e
-	}
-	return {html, code, htmR, codR, exec, exeR}
+	return {html, code, exec}
 }
 
 

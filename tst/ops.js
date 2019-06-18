@@ -2,7 +2,9 @@ var ct = require('cotest'),
 		//not = require('../new/not'),
 		any = require('../any'),
 		all = require('../all'),
-		rep = require('../rep')
+		rep = require('../rep'),
+		not = require('../not'),
+		spy = require('../spy')
 function test(t, res, ref) {
 	for (var i=0, ks=Object.keys(ref); i<ks.length; ++i) t('===', res[ks[i]], ref[ks[i]])
 }
@@ -215,11 +217,12 @@ ct('not pass', t => {
 	})
 })
 */
-ct.skip('all together now', t => {
+ct('all together now', t => {
 	var ops = /[+*-/]/,
 			nmb = /[0-9]+/,
 			_ = rep(/[ \t]+/),
-			exp = all(nmb, _, rep(all(ops, _, nmb)))
+			exp = all(nmb, _, rep(all(ops, _, nmb)), spy.call({kin:'err'},not(/[^]+/), function() { console.log('spy', this) })),
+			ERR = spy(all(nmb, 'notFound'), function(string) { this.add(string.slice(this.j)) })
 	var res = exp.run('12  +34+ 45')
 	t('===', res.err, false)
 	t('===', res.kin, '')
@@ -233,6 +236,28 @@ ct.skip('all together now', t => {
 	t('===', err.i, 0)
 	t('===', err.fuse(), '12+  ')
 	t('===', err.fuse({err: txt => txt.replace(/[^]/g, '#')}), '12###')
+
+	var big = exp.run('12+  +  ', 0, true)
+	t('===', big.err, true)
+	t('===', big.kin, '')
+	t('===', big.i, 0)
+	t('===', big.fuse(), '12+  +  ')
+	t('===', big.fuse({err: txt => txt.replace(/[^]/g, '#')}), '12######')
+
+	var biG = exp.run('12+  +  ', 0)
+	t('===', biG.err, true)
+	t('===', biG.kin, '')
+	t('===', biG.i, 0)
+	t('===', biG.fuse(), '12+  +  ')
+	t('===', biG.fuse({err: txt => txt.replace(/[^]/g, '#')}), '12######')
+
+	var bIG = exp.run('12+  +  ', 0)
+	t('===', bIG.err, true)
+	t('===', bIG.kin, '')
+	t('===', bIG.i, 0)
+	t('===', bIG.fuse(), '12+  +  ')
+	t('===', bIG.fuse({err: txt => txt.replace(/[^]/g, '#')}), '12######')
+
 })
 /*
 ct('and pass', t => {

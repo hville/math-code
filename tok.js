@@ -1,6 +1,6 @@
 var Word = require('./src/_word'),
-		THIS = require('./src/_this'),
-		Rule = require('./src/_rule')
+		THIS = require('./src/_this')//,
+		//Rule = require('./src/_rule')
 
 module.exports = function(pattern) {
 	var src = pattern.source,

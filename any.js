@@ -18,11 +18,11 @@ module.exports = function() {
 	return this
 }
 
-function runany(string, index) {
+function runany(string, index, debug) {
 	var ops = this.opt,
 			pos = index || 0,
 			itm
-	for (var i=0; i<ops.length; ++i) if (!(itm = ops[i].run(string, pos)).err) break
+	for (var i=0; i<ops.length; ++i) if (!(itm = ops[i].run(string, pos, debug)).err) break
 	if (this.kin) itm.kin = this.kin
 	return itm
 }

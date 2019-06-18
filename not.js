@@ -1,14 +1,9 @@
 var THIS = require('./src/_this'),
-		text = require('./tok'),
-		any = require('./any')
+		text = require('./tok')
 
-module.exports = function() {
-	var opt = []
-	for (var i=0; i<arguments.length; ++i) {
-		var arg = arguments[i],
-				typ = arg.constructor
-		opt[i] = typ === Object ? arg : typ === Array ? any.apply(null, arg) : text(arg)
-	}
+module.exports = function(rule) {
+	var typ = rule.constructor,
+			opt = typ === Object ? rule : text(rule)
 	if (this === THIS) return {
 		kin: '',
 		opt: opt,
@@ -19,11 +14,9 @@ module.exports = function() {
 	return this
 }
 
-function runnot(string, index) {
-	var ops = this.opt,
-			pos = index || 0,
-			itm
-	for (var i=0; i<ops.length; ++i) if (!(itm = ops[i].run(string, pos)).err) break
+function runnot(string, index, debug) {
+	var pos = index || 0,
+			itm = this.opt.run(string, pos, debug)
 	itm.err = !itm.err
 	if (itm.err) {
 		if (this.kin) itm.kin = this.kin

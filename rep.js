@@ -15,13 +15,13 @@ module.exports = function(rule, min, max) {
 	return this
 }
 
-function runrep(string, index) {
+function runrep(string, index, debug) {
 	var rule = this.opt[0],
 			min = this.opt[1],
 			max = Math.min(this.opt[2], string.length),
 			pack = new Pack(this.kin, index || 0)
 	for (var i=0; i<max; ++i) {
-		var res = rule.run(string, pack.j)
+		var res = rule.run(string, pack.j, debug)
 		if (res.err) break
 		pack.add(res)
 	}
