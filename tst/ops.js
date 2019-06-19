@@ -45,15 +45,15 @@ ct('all pass', t => {
 			pack = rule.run('abc'),
 			nest = pack.set[1]
 	t('===', pack.err, false)
-	//t('===', nest.err, false)
+	t('===', nest.err, false)
 	t('===', pack.kin, '')
-	//t('===', nest.kin, 'A')
+	t('===', nest.kin, 'A')
 	t('===', pack.i, 0)
-	//t('===', nest.i, 1)
+	t('===', nest.i, 1)
 	t('===', pack.j, 3)
-	//t('===', nest.j, 3)
+	t('===', nest.j, 3)
 	t('===', pack.set.length, 2)
-	//t('===', nest.set.length, 2)
+	t('===', nest.set.length, 2)
 	var _ = / */,
 			spaced = all('a', _, 'b', _, 'c')
 	t('===', spaced.run('abc').j, 3)
@@ -87,6 +87,12 @@ ct('all fail', t => {
 	t('===', nest.j, 3)
 	t('===', pack.set.length, 2)
 	t('===', nest.set.length, 2)
+})
+
+ct('all exec', t => {
+	test(t, all.call('kin', 'abc').exec('abcdef'), {
+		kin:'kin', i:0, j: 6, err: true
+	})
 })
 
 ct('any pass', t => {
@@ -146,19 +152,13 @@ ct('rep fail', t => {
 	t('===', rep('ab', 3).run('ababX').j, 5)
 })
 
-/*
-ct('any => array', t => {
-	var allany = all(['a', 'b'], ['c', 'd']).run('bd'),
-			repany = rep(['a', 'b']).run('aabb')
-
-	t('===', allany.err, false)
-	t('===', allany.j, 2)
-
-	t('===', repany.err, false)
-	t('===', repany.j, 4)
+ct('spy', t => {
+	test(t, spy.call('SPY', 'abc', res=>(res.txt=res.txt.toUpperCase())).run('abc'), {
+		kin:'SPY', i:0, txt:'ABC', j: 3, err: false
+	})
 })
-*/
-ct('fuse', t => {
+
+ct.skip('fuse', t => {
 	t('===', all('ab', 'cd').run('ab').fuse(), 'ab')
 	t('===', all('ab', any.call('xxx', /[^]*/)).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'abXY')
 	t('===', all.call('xxx', 'ab', /[^]*/).run('abxy').fuse({xxx: txt => txt.toUpperCase() }), 'ABXY')
@@ -216,11 +216,11 @@ ct('not pass', t => {
 	})
 })
 */
-ct('all together now', t => {
+ct.skip('all together now', t => {
 	var ops = /[+*-/]/,
 			nmb = /[0-9]+/,
 			_ = rep(/[ \t]+/),
-			exp = all(nmb, _, rep(all(ops, _, nmb)), spy.call('err',not(/[^]+/), function() { console.log('spy', this) })),
+			exp = all(nmb, _, rep(all(ops, _, nmb)), spy.call('err',not(/[^]+/), function(re) { console.log('spy', res) })),
 			ERR = spy(all(nmb, 'notFound'), function(string) { this.add(string.slice(this.j)) })
 	var res = exp.run('12  +34+ 45')
 	t('===', res.err, false)

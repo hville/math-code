@@ -1,3 +1,6 @@
+var Pack = require('./_pack'),
+		Word = require('./_word')
+
 module.exports = Rule
 
 function Rule(set, run) {
@@ -7,6 +10,14 @@ function Rule(set, run) {
 }
 Rule.prototype.kin = ''
 Rule.prototype.isRule = true
+Rule.prototype.exec = function(string) {
+	var res = this.run(string, 0)
+	if (res.j !== string.length) {
+		if (!res.add) res = (new Pack('', res.i).add(res))
+		res.add(new Word('', res.j, string.slice(res.j), true))
+	}
+	return res
+}
 
 /*
 RESULTS: WORD | PACK item, part, lump, unit, link, band, body, pool, yarn
@@ -23,10 +34,6 @@ FORCE
 row lazy some chain until loose
 all full force greedy
 row seq join fuse weld mend cast
-
-
-
-
 
 
 def define

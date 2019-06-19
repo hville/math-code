@@ -11,7 +11,7 @@ function Pack(kin, i) {
 }
 
 Pack.prototype.add = function(itm) {
-	if (itm.constructor === String) itm = new Word('', this.j, itm)
+	//TODO del if (itm.constructor === String) itm = new Word('', this.j, itm, )
 	//failure is contagious, unless you've never really failed
 	if (!this.err || this.j === this.i) this.err = itm.err
 	this.j = itm.j

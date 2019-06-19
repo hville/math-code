@@ -15,7 +15,7 @@ function spyset(rule, cb) {
 function spyrun(string, index) {
 	var pos = index || 0,
 			itm = this.def[0].run(string, pos)
-	this.def[1].call(itm, string, pos)
+	this.def[1](itm)
 	if (this.kin) itm.kin = this.kin
 	return itm
 }
