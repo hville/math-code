@@ -1,26 +1,15 @@
-var THIS = require('./src/_this'),
-		Pack = require('./src/_pack'),
-		text = require('./tok')
+var Pack = require('./src/_pack'),
+		Rule = require('./src/_rule'),
+		arrset = require('./src/__arrset')
 
 module.exports = function() {
-	var opt = []
-	for (var i=0; i<arguments.length; ++i) {
-		var arg = arguments[i],
-				typ = arg.constructor
-		opt[i] = typ === Object ? arg : text(arg)
-	}
-	if (this === THIS) return {
-		kin: '',
-		opt: opt,
-		run: runall
-	}
-	this.opt = opt
-	this.run = runall
-	return this
+	var tok = new Rule(arrset, allrun)
+	if (this instanceof String) tok.kin = ''+this
+	return arrset.apply(tok, arguments)
 }
 
-function runall(string, index, debug) {
-	var ops = this.opt,
+function allrun(string, index, debug) {
+	var ops = this.def,
 			pack = new Pack(this.kin, index || 0)
 	for (var i=0; i<ops.length; ++i) {
 		if (pack.add(ops[i].run(string, pack.j, debug)).err && !debug) break

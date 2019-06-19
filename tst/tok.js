@@ -13,20 +13,20 @@ function test(t, res, ref) {
 }
 
 ct('init sticky/global flags', t => {
-	t('===', abcS.opt.sticky, true)
-	t('===', abcS.opt.global, false)
+	t('===', abcS.def.sticky, true)
+	t('===', abcS.def.global, false)
 
-	t('===', abcG.opt.sticky, false)
-	t('===', abcG.opt.global, true)
+	t('===', abcG.def.sticky, false)
+	t('===', abcG.def.global, true)
 })
 ct('kin', t => {
-	test(t, text.call({kin: 'kin'}, 'abc').run('abc'), {
+	test(t, text.call('kin', 'abc').run('abc'), {
 		kin:'kin', i:0, txt: 'abc', j: 3, err: false
 	})
-	test(t, text.call({kin: 'kin'}, /abc/).run('abc'), {
+	test(t, text.call('kin', /abc/).run('abc'), {
 		kin:'kin', i:0, txt: 'abc', j: 3, err: false
 	})
-	test(t, text.call({kin: 'kin'}, simNoSticky).run('abc'), {
+	test(t, text.call('kin', simNoSticky).run('abc'), {
 		kin:'kin', i:0, txt: 'abc', j: 3, err: false
 	})
 })

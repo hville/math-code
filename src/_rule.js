@@ -6,6 +6,7 @@ function Rule(set, run) {
 	this.run = run
 }
 Rule.prototype.kin = ''
+Rule.prototype.isRule = true
 
 /*
 RESULTS: WORD | PACK item, part, lump, unit, link, band, body, pool, yarn

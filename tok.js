@@ -1,22 +1,19 @@
 var Word = require('./src/_word'),
-		THIS = require('./src/_this')//,
-		//Rule = require('./src/_rule')
+		Rule = require('./src/_rule')
 
 module.exports = function(pattern) {
-	var src = pattern.source,
-			opt = !src ? pattern : new RegExp(src, pattern.sticky == null ? 'g' : 'y'),
-			run = !src ? textAt : opt.sticky ? stickyAt : globalAt
-	if (this === THIS) return {
-		kin: '',
-		opt: opt,
-		run: run
-	}
-	this.opt = opt
-	this.run = run
+	var tok = new Rule(tokset)
+	if (this instanceof String) tok.kin = ''+this
+	return tok.set(pattern)
+}
+function tokset(pattern) {
+	var src = pattern.source
+	this.def = !src ? pattern : new RegExp(src, pattern.sticky == null ? 'g' : 'y')
+	this.run = !src ? textAt : this.def.sticky ? stickyAt : globalAt
 	return this
 }
 function textAt(string, index) {
-	var ref = this.opt,
+	var ref = this.def,
 			i = 0,
 			pos = index || 0,
 			j = pos
@@ -24,13 +21,13 @@ function textAt(string, index) {
 	return new Word(this.kin, pos, string.slice(pos, j), false)
 }
 function stickyAt(string, index) {
-	var ref = this.opt,
+	var ref = this.def,
 			pos = ref.lastIndex = index || 0,
 			res = ref.exec(string)
 	return res ? new Word(this.kin, pos, res[0], false) : new Word(this.kin, pos, pos >= string.length - 1 ? '' : string[pos], true)
 }
 function globalAt(string, index) {
-	var ref = this.opt,
+	var ref = this.def,
 			pos = ref.lastIndex = index || 0,
 			res = ref.exec(string)
 	return (res && res.index === pos) ? new Word(this.kin, pos, res[0], false) : new Word(this.kin, pos, pos >= string.length - 1 ? '' : string[pos], true)

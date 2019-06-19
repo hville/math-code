@@ -1,23 +1,21 @@
-var THIS = require('./src/_this'),
-		text = require('./tok')
+var text = require('./tok'),
+		Rule = require('./src/_rule')
 
 module.exports = function(rule, cb) {
-	var typ = rule.constructor,
-			opt = [typ === Object ? rule : text(rule), cb]
-	if (this === THIS) return {
-		kin: '',
-		opt: opt,
-		run: runspy
-	}
-	this.opt = opt
-	this.run = runspy
+	var tok = new Rule(spyset, spyrun)
+	if (this instanceof String) tok.kin = ''+this
+	return tok.set(rule, cb)
+}
+
+function spyset(rule, cb) {
+	this.def = [rule.isRule ? rule : text(rule), cb]
 	return this
 }
 
-function runspy(string, index, debug) {
+function spyrun(string, index) {
 	var pos = index || 0,
-			itm = this.opt[0].run(string, pos, debug)
-	this.opt[1].call(itm, string, pos, debug)
+			itm = this.def[0].run(string, pos)
+	this.def[1].call(itm, string, pos)
 	if (this.kin) itm.kin = this.kin
 	return itm
 }

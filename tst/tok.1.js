@@ -42,6 +42,25 @@ One11.prototype.set = function() {
 console.log('One11', 243, '1+1+1+1', '[+]if:0', one11(1,2,3).set(4,5,6).ops)
 
 
+function one_1() {
+	var one = new One_1
+	One_1.apply(one, arguments)
+	return one
+}
+function One_1() {
+	this.ops = []
+	for (var i=0; i<arguments.length; ++i) this.ops[this.ops.length] = arguments[i]
+}
+One_1.prototype.set = function() {
+	One_1.apply(this, arguments)
+	return this
+}
+
+console.log('One_1', 279, '[-]5', '[+]if:0', one_1(1,2,3).set(4,5,6).ops)
+
+
+
+
 var prop = {
 	ops: {value: []}
 }

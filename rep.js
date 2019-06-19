@@ -1,27 +1,25 @@
-var THIS = require('./src/_this'),
-		Pack = require('./src/_pack'),
-		text = require('./tok')
+var Pack = require('./src/_pack'),
+		text = require('./tok'),
+		Rule = require('./src/_rule')
 
 module.exports = function(rule, min, max) {
-	var typ = rule.constructor,
-			opt = [typ === Object ? rule : text(rule), min || 0, max || Infinity]
-	if (this === THIS) return {
-		kin: '',
-		opt: opt,
-		run: runrep
-	}
-	this.opt = opt
-	this.run = runrep
+	var tok = new Rule(repset, reprun)
+	if (this instanceof String) tok.kin = ''+this
+	return tok.set(rule, min, max)
+}
+
+function repset(rule, min, max) {
+	this.def = [rule.isRule ? rule : text(rule), min || 0, max || Infinity]
 	return this
 }
 
-function runrep(string, index, debug) {
-	var rule = this.opt[0],
-			min = this.opt[1],
-			max = Math.min(this.opt[2], string.length),
+function reprun(string, index) {
+	var rule = this.def[0],
+			min = this.def[1],
+			max = Math.min(this.def[2], string.length),
 			pack = new Pack(this.kin, index || 0)
 	for (var i=0; i<max; ++i) {
-		var res = rule.run(string, pack.j, debug)
+		var res = rule.run(string, pack.j)
 		if (res.err) break
 		pack.add(res)
 	}
