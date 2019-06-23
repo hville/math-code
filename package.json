@@ -2,10 +2,12 @@
   "name": "@hugov/math-code",
   "version": "0.4.0",
   "description": "lightweight equation parser",
-  "dependencies": {},
+  "dependencies": {
+    "pico-parse": "0.0.1"
+  },
   "devDependencies": {
     "@types/node": "^11.11.0",
-    "cotest": "^4.0.2",
+    "cotest": "^4.0.3",
     "grosso-modo": "^2.1.0",
     "lazy-stats": "^2.0.1"
   },
