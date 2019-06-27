@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "description": "lightweight equation parser",
   "dependencies": {
-    "pico-parse": "0.0.1"
+    "pico-parse": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^11.11.0",
