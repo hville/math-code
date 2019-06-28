@@ -10,14 +10,10 @@ ct('pass', t => {
 	t('{===}', iter(rule.scan('a=cos(2)'))().a, Math.cos(2))
 })
 ct('pass', t => {
-	var norm = rule.scan('x=N(10,11,a,b,c,d);y=N(100,101,a,b,c,d)'),
+	var norm = rule.scan('x=N(10,11,a,b,c,d)%;y=N(100,101,a,b,c,d)'),
 			func = iter(norm)
 	t('>', func().y, 0)
 	t('>', func().y, func().x)
-	t('<', func().a, 100)
-	t('<', func().b, 100)
-	t('<', func().c, 100)
-	t('<', func().d, 100)
 })
 ct('fail', t => {
 	t('===', iter(rule.scan('y=')).constructor, Error)
