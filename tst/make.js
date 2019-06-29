@@ -1,6 +1,6 @@
 var ct = require('cotest'),
 		rule = require('../src/rule'),
-		iter = require('../src/iter')
+		iter = require('../src/make')
 
 ct('pass', t => {
 	t('===', iter(rule.scan('y=1')).constructor, Function)
