@@ -6,8 +6,8 @@ var make = require('../make'),
 const stats = new Stats(3),
 			N = 500000
 const tree = rule.scan(`
-	y1 = max(D(1, 6, r), D(1, 6))
-	y2 = max(D(1, 6, r), D(1, 6, r))
+	y1 = max(D(1, 6, r), D(1, 6))      //2 uncorrelated dices
+	y2 = max(D(1, 6, r), D(1, 6, r))   //half of the values move in tandem
 	y3 = max(D(1, 6, r), D(1, 6, -r))
 `)
 //console.log(tree)
