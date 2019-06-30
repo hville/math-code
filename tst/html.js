@@ -1,5 +1,5 @@
 var ct = require('cotest'),
-		rule = require('../src/rule'),
+		rule = require('../rule'),
 		html = require('../src/html')
 
 ct('pass', t => {

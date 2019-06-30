@@ -3,12 +3,12 @@
   "version": "0.4.0",
   "description": "lightweight equation parser",
   "dependencies": {
-    "pico-parse": "0.0.2"
+    "pico-parse": "^0.2.0"
   },
   "devDependencies": {
     "@types/node": "^11.11.0",
     "cotest": "^4.0.3",
-    "grosso-modo": "^2.1.0",
+    "grosso-modo": "^2.2.0",
     "lazy-stats": "^2.0.1"
   },
   "scripts": {
