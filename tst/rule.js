@@ -3,8 +3,8 @@ var ct = require('cotest'),
 
 ct('pass', t => {
 	t('!', rule.scan('a=1').err)
-	t('!', rule.scan('a =1').err)
-	t('!', rule.scan('a= 1').err)
+	t('!', rule.scan('a =1**1').err)
+	t('!', rule.scan('a= 1 ** ( 1**1)').err)
 	t('!', rule.scan(' a=1').err)
 	t('!', rule.scan('a=1 ').err)
 	t('!', rule.scan(' abc = 0.34e-34 ').err)

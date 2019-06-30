@@ -12,7 +12,7 @@
 make(`
 wage = L(45, 55, city, work)
 rent = L(15, 25, city)
-cost = L(15, 20, city, -work)
+cost = L(15, 20, city, -work) //work less, spend more!
 
 save = pow(wage - rent - cost, 1 + N(1,2)%)
 `)() // => { wage, rent, cost, save }
@@ -60,7 +60,7 @@ function(v) {
 ## ToDo
 
 * [ ] test negative correlation
-* [ ] allow comments
+* [?] allow inline comments
 * [?] return to Math namespace to avoid blocking common variable names (max, min, ...)
 * [?] `y = Init(1)` | `Init.y = 1` for run-once recursive
 * [?] allow `prototype` by using `hasOwnProperty`
