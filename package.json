@@ -1,9 +1,9 @@
 {
   "name": "@hugov/math-code",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "lightweight equation parser",
   "dependencies": {
-    "pico-parse": "^0.2.0"
+    "pico-parse": "^0.2.1"
   },
   "devDependencies": {
     "@types/node": "^11.11.0",
@@ -12,8 +12,7 @@
     "lazy-stats": "^2.0.1"
   },
   "scripts": {
-    "test": "npm run rule && cotest ./test",
-    "rule": "node src/$rule",
+    "test": "cotest ./tst",
     "post": "npm test && npm publish --access=public"
   },
   "keywords": [

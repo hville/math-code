@@ -35,6 +35,7 @@ function codeRed(tgt, itm) {
 				: ((tgt.fcn += txt), tgt)
 	}
 }
+
 function formatRandom(tgt, itm) {
 	var range = [],
 			risks = [],
@@ -80,7 +81,7 @@ function formatRandom(tgt, itm) {
 }
 
 module.exports = function(tree, ctx) {
-	if (!ctx) ctx = createContext()
+	if (!ctx) ctx = {Z:Z, N:N, L:L, D:D, W:W, R:R}
 
 	var code = codeRed({fcn:'', idx: -1, rsk: [], ctx: ctx, ext:{}, pool:{}}, tree)
 	if (code.constructor === Error) return code
@@ -90,11 +91,6 @@ module.exports = function(tree, ctx) {
 	} catch (e) {
 		return e
 	}
-}
-
-function createContext() {
-	var ctx = {Z:Z, N:N, L:L, D:D, W:W, R:R}
-	return ctx
 }
 
 function createFunction(fcn, rsk) {
