@@ -1,8 +1,9 @@
 {
   "name": "@hugov/math-code",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "lightweight equation parser",
   "dependencies": {
+    "norm-dist": "^2.0.1",
     "pico-parse": "^0.2.1"
   },
   "devDependencies": {

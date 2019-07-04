@@ -1,4 +1,4 @@
-var Z = require('random-z'),
+var iZ = require('norm-dist/icdf'),
 		N = require('grosso-modo/norm'),
 		L = require('grosso-modo/logn'),
 		W = require('grosso-modo/walk'),
@@ -6,7 +6,7 @@ var Z = require('random-z'),
 		D = require('grosso-modo/dice')
 
 function codeRed(tgt, itm) {
-	if (itm.constructor === Error) return itm
+	if (tgt.constructor === Error) return tgt
 	if (itm.err) return new Error('Unexpected token at ' + itm.i)
 
 	var txt = itm.txt
@@ -57,21 +57,23 @@ function formatRandom(tgt, itm) {
 		}
 	}
 	var fullName = name + range.join(),
-			existing = fullName in tgt.pool,
+			existing = fullName in tgt.pool, //TODO sometimes tgt.pool is undefined
 			getFunct = existing ? tgt.pool[fullName] : ++tgt.idx,
 			getValue = ++tgt.idx
 
 	//only add the ranged generator if it is not defined
-	if (!existing) {
+	if (!existing) try {
 		tgt.ctx[getFunct] = tgt.ctx[name](range[0], range[1])
 		tgt.pool[fullName] = getFunct
+	} catch (e) {
+		return e
 	}
 
 	//add the function with risk factors
 	for (var r=0; r<risks.length; ++r) if (tgt.rsk.indexOf(risks[r]) === -1) tgt.rsk.push(risks[r])
 	tgt.ctx[getValue] = Function(
 		'return this['+getFunct+']('
-		+ (count ? '(this.Z()' + chain + ')/'+ (count+1) : 'this.Z()')
+		+ (count ? '(this[0](Math.random())' + chain + ')/'+ (count+1) : 'this[0](Math.random())')
 		+ ')'
 	)
 
@@ -81,9 +83,9 @@ function formatRandom(tgt, itm) {
 }
 
 module.exports = function(tree, ctx) {
-	if (!ctx) ctx = {Z:Z, N:N, L:L, D:D, W:W, R:R}
+	if (!ctx) ctx = {N:N, L:L, D:D, W:W, R:R, 0:iZ}
 
-	var code = codeRed({fcn:'', idx: -1, rsk: [], ctx: ctx, ext:{}, pool:{}}, tree)
+	var code = codeRed({fcn:'', idx: 0, rsk: [], ctx: ctx, ext:{}, pool:{}}, tree)
 	if (code.constructor === Error) return code
 
 	try {
@@ -94,6 +96,6 @@ module.exports = function(tree, ctx) {
 }
 
 function createFunction(fcn, rsk) {
-	for (var j=0, init=''; j<rsk.length; ++j) init += 'this.' + rsk[j] + '=this.Z();'
+	for (var j=0, init=''; j<rsk.length; ++j) init += 'this.' + rsk[j] + '=this[0](Math.random());'
 	return init+fcn
 }
